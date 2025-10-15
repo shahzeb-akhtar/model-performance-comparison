@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="UTF-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="script.js"></script>
+	<title>Perfomance Comparison of Models</title>
+	<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'>  <path d='M1 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1zm5-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1z'/></svg>" />
+</head>
+<body class="cd thin_scroll" onload="bodyLoaded()">
+	<!-- Div to show tooltip-->
+	<div id="tooltip" class="dn thin_scroll bgcllg ofa extra_window"></div>
+	<div id="loading_div" class="dn">
+		<div class="df aic h100p w100p">
+			<div class="df jcsa w100p">
+				<div class="loader"></div>
+			</div>
+		</div>
+	</div>
+	<div class="df fdc w100p h100vh bsbb ofh">
+		<div class="header_div bb1s pr pt10 pb10">
+			<div class="l0 t0 z5 h100p w100p df jcsa aic fwb ">
+				<span class="page_title">Perfomance Comparison of Models</span>
+			</div>
+		</div>
+		<div id="main_div" class="df f110 ofh">
+			<div id="input_div" class="f1">
+				<div class="w100p h100p">
+					<div class="h100p w90p ma df aic">
+						<div class="fsxs w100p h80p bsbb">
+							<div class="pb10 fsxxs cg">
+								<div class="mb10">
+									<span>Please provide tab-separated performance data to be compared. It should have 4 columns - Task, Model Name, Base Model, and Changed Model (e.g. Model with Self-Reflection)</span>
+								</div>
+								<div>
+									<span>Sample data below is from Madaan et. al. <a href="https://arxiv.org/abs/2303.17651" target="_blank"> 2023 paper</a> - <b>Self-Refine: Iterative Refinement with Self-Feedback</b> </span>
+								</div>
+							</div>
+							<textarea class="w100p h80p rsn data_text bsbb"></textarea>
+							<div class="df jcfe">
+								<button class="update_button">Update</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="viz_main_div" class="f3 df aic jcsa">
+				<div id="viz_div" class="w100p h90p"></div>
+			</div>
+			
+		</div>
+		
+		<div id="copyright_div" class="mt10 bt1s p5 fsxs">
+			<div class="df jcfe">
+				<div class="df aic">
+					<span><span class="copyright_year"></span> &#169; Shahzeb Akhtar </span>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
