@@ -167,7 +167,12 @@ function createChart(){
 	let modelWidth = rect.width/numModels;
 	let circleRadius = modelWidth*0.15;
 	let miniChartHeight = rect.height;
-	let scaleY = d3.scaleLinear().domain([0, 100]).range([miniChartHeight - circleRadius, circleRadius]);
+	let allVals = [];
+	dataArr.forEach((d) => {
+		allVals.push(d[baseColName]);
+		allVals.push(d[changedColName]);
+	})
+	let scaleY = d3.scaleLinear().domain(d3.extent(allVals)).nice().range([miniChartHeight - circleRadius, circleRadius]);
 	let miniChartDiv, svgElem, gElem;
 	let taskGroups = d3.group(dataArr, d => d[taskColName]);
 	let modelsArr;
