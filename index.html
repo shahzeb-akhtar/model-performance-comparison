@@ -30,7 +30,14 @@
 				<div class="w100p h100p">
 					<div class="h100p w90p ma df aic">
 						<div class="fsxs w100p h80p bsbb">
-							<div class="pb10 fsxxs cg">
+							<div class="mb5 fsxxs w100p">
+								<span>Representation</span>
+								<select id="representation_type" class="w90p fsxxs">
+									<option value="line_triangle">Horizontal line and up/down triangles</option>
+									<option value="circles">Hollow and Solid Circles</option>
+								</select>
+							</div>
+							<div class="pb10 fsxxs cg bsbb">
 								<div class="mb10">
 									<span>Please provide tab-separated performance data to be compared. It should have 4 columns - Task/Scenario, Model Name, Base Model, and Changed Model (e.g. Model with Self-Reflection)</span>
 								</div>
@@ -38,8 +45,8 @@
 									<span>Sample data below is from Madaan et. al. <a href="https://arxiv.org/abs/2303.17651" target="_blank"> 2023 paper</a> - <b>Self-Refine: Iterative Refinement with Self-Feedback</b> </span>
 								</div>
 							</div>
-							<textarea class="w100p h80p rsn data_text bsbb"></textarea>
-							<div class="df jcfe">
+							<textarea class="w100p h60p rsn data_text bsbb"></textarea>
+							<div class="df jcfe bsbb">
 								<button class="update_button">Update</button>
 							</div>
 						</div>

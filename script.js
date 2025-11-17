@@ -2,6 +2,7 @@ let resizeTimer,
 	mouseTimer,
 	loadingDiv,
 	dataTextArea,
+	representationTypeSel,
 	vizDiv,
 	tooltipDiv,
 	vizMainDiv,
@@ -56,6 +57,7 @@ Constrained Generation	GPT-4	15	45`,
 function bodyLoaded() {
 	d3.select('.copyright_year').html(currentYear);
 	dataTextArea = d3.select('.data_text');
+	representationTypeSel = d3.select('#representation_type');
 	loadingDiv = d3.select('#loading_div');
 	inputDiv = d3.select('#input_div');
 	vizMainDiv = d3.select('#viz_main_div');
@@ -65,9 +67,10 @@ function bodyLoaded() {
 	
 	dataTextArea.property('value', sampleData);
 	d3.select('.update_button').on('click', prepareChart);
+	representationTypeSel.on('change', updateRepresentation)
 	
 	d3.selectAll('.with_tooltip').on('mouseenter', showTooltip).on('mousemove', moveTooltip).on('mouseleave', hideTooltip);
-
+	
 	window.onerror = function(message, source, lineno, colno, error) {  
 	  alert("Error occured. Please contact Shahzeb Akhtar (shahzeb.akhtar@gmail.com).");
 	  loadingDiv.classed('dn', true); 
@@ -157,11 +160,19 @@ function createChart(){
 		div.append('div').attr('class', 'word-wrap fsxxs').append('span').html(m);
 	});
 	
-	div = circleLegendDiv.append('div').attr('class', 'f1 df jcsa aic fsxxs cg').append('div').attr('class', 'df aic');
-	div.append('span').attr('class', 'fsm mr5').html('&#9675;');
-	div.append('span').attr('class', 'mr5').html(`Hollow circle represents ${baseColName} performance, and `); 
-	div.append('span').attr('class', 'fsm mr5').html('&#9679;');
-	div.append('span').html(`Solid circle represents ${changedColName} performance`); 
+	div = circleLegendDiv.append('div').attr('class', 'f1 df jcsa aic fsxxs cg');
+	let leftLegendDiv = div.append('div').attr('class', '');
+	let rightLegendDiv = div.append('div').attr('class', '');
+	leftLegendDiv.append('span').attr('class', 'circles fsm mr5').html('&#9675;');
+	leftLegendDiv.append('span').attr('class', 'line_triangle fsm mr5 fwb').html('-');
+	leftLegendDiv.append('span').attr('class', 'circles').html(`Hollow circle`); 
+	leftLegendDiv.append('span').attr('class', 'line_triangle').html(`Horizontal line`);
+	leftLegendDiv.append('span').attr('class', 'mr5').html(` represents ${baseColName} performance, and`); 
+	rightLegendDiv.append('span').attr('class', 'circles fsm mr5').html('&#9679;');
+	rightLegendDiv.append('span').attr('class', 'line_triangle fsxxs mr5').html('&#9650 / &#9660');
+	rightLegendDiv.append('span').attr('class', 'circles').html(`Solid circle`); 
+	rightLegendDiv.append('span').attr('class', 'line_triangle').html(`Up or down triangle`); 
+	rightLegendDiv.append('span').html(` represents ${changedColName} performance`); 
 
 	// prepare charts
 	let modelWidth = rect.width/numModels;
@@ -190,14 +201,38 @@ function createChart(){
 				x2 = modelWidth*0.75, // .8
 				y1 = scaleY(m[baseColName]),
 				y2 = scaleY(m[changedColName]);
+			
+			let trianglePoints = [];
+			if (m[changedColName] >= m[baseColName]){
+				// up triangle
+				trianglePoints.push([x2 - (circleRadius * 0.7),  y2 + (circleRadius * 0.7)])
+				trianglePoints.push([x2,  y2 - (circleRadius * 0.7)])
+				trianglePoints.push([x2 + (circleRadius * 0.7),  y2 + (circleRadius * 0.7)])
+			}else{
+				// down triangle
+				trianglePoints.push([x2 - (circleRadius * 0.7),  y2 - (circleRadius * 0.7)])
+				trianglePoints.push([x2,  y2 + (circleRadius * 0.7)])
+				trianglePoints.push([x2 + (circleRadius * 0.7),  y2 - (circleRadius * 0.7)])
+			}
 				
 			gElem.append('line')
 				.attr("x1", x1).attr("y1", y1)
 				.attr("x2", x2).attr("y2", y2)
-				.style("stroke", colorScale(m[modelColName])).style("stroke-width", circleRadius*0.60);
+				.style("stroke", colorScale(m[modelColName])).style("stroke-width", circleRadius*0.50);
 				
-			gElem.append('circle').attr("cx", x1).attr("cy", y1).attr("r", circleRadius*0.75).style("stroke", colorScale(m[modelColName])).style("stroke-width", circleRadius*0.5).attr("fill", "white");
-			gElem.append('circle').attr("cx", x2).attr("cy", y2).attr("r", circleRadius).attr("fill", colorScale(m[modelColName]));
+			gElem.append('circle').attr('class', 'circles').attr("cx", x1).attr("cy", y1).attr("r", circleRadius*0.75).style("stroke", colorScale(m[modelColName])).style("stroke-width", circleRadius*0.5).attr("fill", "white");
+			gElem.append('line').attr('class', 'line_triangle')
+								.attr("x1", x1 - circleRadius).attr("y1", y1)
+								.attr("x2", x1 + circleRadius).attr("y2", y1)
+								.style("stroke", colorScale(m[modelColName])).style("stroke-width", circleRadius*0.30);
+								
+			gElem.append('circle').attr('class', 'circles').attr("cx", x2).attr("cy", y2).attr("r", circleRadius).attr("fill", colorScale(m[modelColName]));
+			
+			gElem.append("path").attr('class', 'line_triangle')
+					.attr("d", `M ${trianglePoints[0][0]} ${trianglePoints[0][1]} L ${trianglePoints[1][0]} ${trianglePoints[1][1]} L ${trianglePoints[2][0]} ${trianglePoints[2][1]} Z`) // Coordinates for a triangle
+					.attr("fill", colorScale(m[modelColName]));
+	
+	
 			gElem.append('text').attr("x", ((x1 + x2)/2) - (circleRadius*0.9)).attr("y", ((y1 + y2)/2))   //  - (circleRadius*1.5)
 				.attr("text-anchor", "end").attr("dominant-baseline", "middle")
 				.attr("class", "fsxxs")
@@ -231,8 +266,18 @@ function createChart(){
     .attr("transform", "rotate(-90)")
 	.style("fill", "gray")
     .text("Performance (%)");
+	
+	updateRepresentation();
   
 	loadingDiv.classed('dn', true);
+}
+
+function updateRepresentation(){
+	vizDiv.selectAll('.circles').classed('dn', true);
+	vizDiv.selectAll('.line_triangle').classed('dn', true);
+	
+	vizDiv.selectAll(`.${representationTypeSel.property('value')}`).classed('dn', false);
+	
 }
 
 function positionElement(elem, evX, evY, preferLeft=false){
