@@ -176,7 +176,7 @@ function createChart(){
 
 	// prepare charts
 	let modelWidth = rect.width/numModels;
-	let circleRadius = modelWidth*0.15;
+	let circleRadius = modelWidth*0.3;
 	let miniChartHeight = rect.height;
 	let allVals = [];
 	dataArr.forEach((d) => {
@@ -200,7 +200,14 @@ function createChart(){
 			let x1 = modelWidth*0.75, // .4
 				x2 = modelWidth*0.75, // .8
 				y1 = scaleY(m[baseColName]),
-				y2 = scaleY(m[changedColName]);
+				y2 = scaleY(m[changedColName]),
+				textY = 0;
+			
+			if(m[changedColName] >= m[baseColName]){
+				textY = y2 - 15;
+			}else{
+				textY = y1 + 15;
+			}
 			
 			let trianglePoints = [];
 			if (m[changedColName] >= m[baseColName]){
@@ -224,7 +231,7 @@ function createChart(){
 			gElem.append('line').attr('class', 'line_triangle')
 								.attr("x1", x1 - circleRadius).attr("y1", y1)
 								.attr("x2", x1 + circleRadius).attr("y2", y1)
-								.style("stroke", colorScale(m[modelColName])).style("stroke-width", circleRadius*0.30);
+								.style("stroke", colorScale(m[modelColName])).style("stroke-width", circleRadius*0.10);
 								
 			gElem.append('circle').attr('class', 'circles').attr("cx", x2).attr("cy", y2).attr("r", circleRadius).attr("fill", colorScale(m[modelColName]));
 			
@@ -233,8 +240,8 @@ function createChart(){
 					.attr("fill", colorScale(m[modelColName]));
 	
 	
-			gElem.append('text').attr("x", ((x1 + x2)/2) - (circleRadius*0.9)).attr("y", ((y1 + y2)/2))   //  - (circleRadius*1.5)
-				.attr("text-anchor", "end").attr("dominant-baseline", "middle")
+			gElem.append('text').attr("x", ((x1 + x2)/2)).attr("y", textY)   //  - (circleRadius*1.5)
+				.attr("text-anchor", "middle").attr("dominant-baseline", "middle")
 				.attr("class", "fsxxs")
 				.attr("fill", "gray")
 				.text(float1Formatter(m[changedColName] - m[baseColName]));
