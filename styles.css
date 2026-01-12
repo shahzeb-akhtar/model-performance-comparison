@@ -107,8 +107,20 @@
 	max-width: 1000px;
 }
 
+.w50 {
+	width: 50px;
+}
+
+.w25 {
+	width: 25px;
+}
+
 .w10 {
 	width: 10px;
+}
+
+.w0 {
+	width: 0px;
 }
 
 .w100p {
@@ -282,6 +294,10 @@
 
 .m5 {
 	margin: 5px;
+}
+
+.m0 {
+	margin: 0px;
 }
 
 .pt10 {

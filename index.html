@@ -6,7 +6,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="styles.css">
     <script src="script.js"></script>
-	<title>Perfomance Comparison of Models</title>
+	<title>Timeseries Visualization</title>
 	<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'>  <path d='M1 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1zm5-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1z'/></svg>" />
 </head>
 <body class="cd thin_scroll" onload="bodyLoaded()">
@@ -22,7 +22,7 @@
 	<div class="df fdc w100p h100vh bsbb ofh">
 		<div class="header_div bb1s pr pt10 pb10">
 			<div class="l0 t0 z5 h100p w100p df jcsa aic fwb ">
-				<span class="page_title">Perfomance Comparison of Models</span>
+				<span class="page_title">Timeseries Visualization</span>
 			</div>
 		</div>
 		<div id="main_div" class="df f110 ofh">
@@ -31,23 +31,35 @@
 					<div class="h100p w90p ma df aic">
 						<div class="fsxs w100p h80p bsbb">
 							<div class="mb5 fsxxs w100p">
-								<span>Representation</span>
-								<select id="representation_type" class="w90p fsxxs">
-									<option value="line_triangle">Horizontal line and up/down triangles</option>
-									<option value="circles">Hollow and Solid Circles</option>
+								<span>Chart Type</span>
+								<select id="chart_type" class="w90p fsxxs">
+									<option value="static">Static</option>
+									<option value="animated">Animated</option>
 								</select>
 							</div>
 							<div class="pb10 fsxxs cg bsbb">
 								<div class="mb10">
-									<span>Please provide tab-separated performance data to be compared. It should have 4 columns - Task/Scenario, Model Name, Base Model, and Changed Model (e.g. Model with Self-Reflection)</span>
+									<span>Please provide tab-separated timeline data to be compared. It should have 3 columns - Entity, Year, and Value.</span>
 								</div>
 								<div>
-									<span>Sample data below is from Madaan et. al. <a href="https://arxiv.org/abs/2303.17651" target="_blank"> 2023 paper</a> - <b>Self-Refine: Iterative Refinement with Self-Feedback</b> </span>
+									<span>Sample data below is from International Monetary Fund (2025) – with minor processing by <a href="https://ourworldindata.org/grapher/real-gdp-growth?&overlay=download-data" target="_blank"> Our World in Data</a></b> </span>
 								</div>
 							</div>
 							<textarea class="w100p h60p rsn data_text bsbb"></textarea>
 							<div class="df jcfe bsbb">
 								<button class="update_button">Update</button>
+							</div>
+							<div class="mt10 fsxxs w100p">
+								<div class="df aic mb5">
+									<input type="radio" name="projections_present" class="m0 projections_option" checked>
+									<span class="ml5">Actual values, no projections</span>
+								</div>
+								<div class="df aic">
+									<input type="radio" name="projections_present" class="m0 apply_projections projections_option">
+									<span class="ml5">Projections Start From</span>
+									<select id="projections_start" class="fsxxs ml5">
+									</select>
+								</div>
 							</div>
 						</div>
 					</div>

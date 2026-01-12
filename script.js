@@ -2,44 +2,232 @@ let resizeTimer,
 	mouseTimer,
 	loadingDiv,
 	dataTextArea,
-	representationTypeSel,
 	vizDiv,
 	tooltipDiv,
+	projectionSel,
 	vizMainDiv,
-	taskColName,
-	modelColName,
-	baseColName,
-	changedColName,
-	numModels,
+	entityColName,
+	yearColName,
+	valueColName,
+	numIntervals,
+	yearRange,
 	colorScale,
 	dataArr,
-	tasks,
-	models,
+	entityYearMap,
+	entityDataMap,
+	entities,
+	entityNumObj,
+	lineStrokeWidth,
+	lineFn,
 	body;
 
-const sampleData = `Task	Model Name	Base Model	Model With Self-Reflection
-Sentiment Reversal	GPT-3.5	8.8	30.4
-Dialogue Response	GPT-3.5	36.4	63.6
-Code Optimization	GPT-3.5	14.8	23
-Code Readability	GPT-3.5	37.4	51.3
-Math Reasoning	GPT-3.5	64.1	64.1
-Acronym Generation	GPT-3.5	41.6	56.4
-Constrained Generation	GPT-3.5	28	37
-Sentiment Reversal	ChatGPT	11.4	43.2
-Dialogue Response	ChatGPT	40.1	59.9
-Code Optimization	ChatGPT	23.9	27.5
-Code Readability	ChatGPT	27.7	63.1
-Math Reasoning	ChatGPT	74.8	75
-Acronym Generation	ChatGPT	27.2	37.2
-Constrained Generation	ChatGPT	44	67
-Sentiment Reversal	GPT-4	3.8	36.2
-Dialogue Response	GPT-4	25.4	74.6
-Code Optimization	GPT-4	27.3	36
-Code Readability	GPT-4	27.4	56.2
-Math Reasoning	GPT-4	92.9	93.1
-Acronym Generation	GPT-4	30.4	56
-Constrained Generation	GPT-4	15	45`,
+const sampleData = `Entity	Year	GDP
+China	1980	7.91
+China	1981	5.1
+China	1982	9
+China	1983	10.8
+China	1984	15.2
+China	1985	13.501
+China	1986	8.9
+China	1987	11.7
+China	1988	11.2
+China	1989	4.2
+China	1990	3.888
+China	1991	10.203
+China	1992	14.277
+China	1993	13.936
+China	1994	13.102
+China	1995	11.016
+China	1996	9.968
+China	1997	9.319
+China	1998	7.934
+China	1999	7.757
+China	2000	8.572
+China	2001	8.319
+China	2002	9.214
+China	2003	10.121
+China	2004	10.115
+China	2005	11.437
+China	2006	12.665
+China	2007	14.154
+China	2008	9.638
+China	2009	9.445
+China	2010	10.587
+China	2011	9.451
+China	2012	7.848
+China	2013	7.771
+China	2014	7.491
+China	2015	7.018
+China	2016	6.776
+China	2017	6.891
+China	2018	6.759
+China	2019	6.065
+China	2020	2.337
+China	2021	8.556
+China	2022	3.112
+China	2023	5.377
+China	2024	5.003
+China	2025	4.796
+China	2026	4.163
+China	2027	4.186
+China	2028	3.965
+China	2029	3.7
+China	2030	3.362
+Germany	1980	1.272
+Germany	1981	0.11
+Germany	1982	-0.788
+Germany	1983	1.555
+Germany	1984	2.826
+Germany	1985	2.192
+Germany	1986	2.417
+Germany	1987	1.469
+Germany	1988	3.736
+Germany	1989	3.913
+Germany	1990	5.723
+Germany	1991	5.011
+Germany	1992	2.017
+Germany	1993	-0.98
+Germany	1994	2.597
+Germany	1995	1.512
+Germany	1996	1.031
+Germany	1997	1.854
+Germany	1998	2.102
+Germany	1999	2.127
+Germany	2000	2.879
+Germany	2001	1.64
+Germany	2002	-0.234
+Germany	2003	-0.53
+Germany	2004	1.165
+Germany	2005	0.889
+Germany	2006	3.857
+Germany	2007	2.892
+Germany	2008	0.888
+Germany	2009	-5.55
+Germany	2010	4.144
+Germany	2011	3.758
+Germany	2012	0.466
+Germany	2013	0.395
+Germany	2014	2.177
+Germany	2015	1.663
+Germany	2016	2.217
+Germany	2017	2.806
+Germany	2018	1.133
+Germany	2019	0.973
+Germany	2020	-4.127
+Germany	2021	3.913
+Germany	2022	1.807
+Germany	2023	-0.872
+Germany	2024	-0.496
+Germany	2025	0.191
+Germany	2026	0.944
+Germany	2027	1.473
+Germany	2028	1.203
+Germany	2029	0.98
+Germany	2030	0.679
+Japan	1980	3.181
+Japan	1981	4.261
+Japan	1982	3.28
+Japan	1983	3.63
+Japan	1984	4.411
+Japan	1985	5.16
+Japan	1986	3.294
+Japan	1987	4.649
+Japan	1988	6.662
+Japan	1989	4.926
+Japan	1990	4.841
+Japan	1991	3.523
+Japan	1992	0.901
+Japan	1993	-0.459
+Japan	1994	1.083
+Japan	1995	2.631
+Japan	1996	3.134
+Japan	1997	0.981
+Japan	1998	-1.27
+Japan	1999	-0.334
+Japan	2000	2.765
+Japan	2001	0.386
+Japan	2002	0.042
+Japan	2003	1.535
+Japan	2004	2.186
+Japan	2005	1.804
+Japan	2006	1.372
+Japan	2007	1.484
+Japan	2008	-1.224
+Japan	2009	-5.693
+Japan	2010	4.098
+Japan	2011	0.024
+Japan	2012	1.375
+Japan	2013	2.005
+Japan	2014	0.296
+Japan	2015	1.561
+Japan	2016	0.754
+Japan	2017	1.675
+Japan	2018	0.643
+Japan	2019	-0.402
+Japan	2020	-4.169
+Japan	2021	2.697
+Japan	2022	0.96
+Japan	2023	1.245
+Japan	2024	0.104
+Japan	2025	1.076
+Japan	2026	0.633
+Japan	2027	0.634
+Japan	2028	0.551
+Japan	2029	0.524
+Japan	2030	0.496
+United States	1980	-0.257
+United States	1981	2.537
+United States	1982	-1.803
+United States	1983	4.584
+United States	1984	7.236
+United States	1985	4.169
+United States	1986	3.463
+United States	1987	3.455
+United States	1988	4.177
+United States	1989	3.672
+United States	1990	1.886
+United States	1991	-0.109
+United States	1992	3.522
+United States	1993	2.752
+United States	1994	4.029
+United States	1995	2.685
+United States	1996	3.773
+United States	1997	4.447
+United States	1998	4.483
+United States	1999	4.788
+United States	2000	4.078
+United States	2001	0.956
+United States	2002	1.7
+United States	2003	2.796
+United States	2004	3.848
+United States	2005	3.483
+United States	2006	2.785
+United States	2007	2.004
+United States	2008	0.114
+United States	2009	-2.576
+United States	2010	2.695
+United States	2011	1.564
+United States	2012	2.289
+United States	2013	2.118
+United States	2014	2.524
+United States	2015	2.946
+United States	2016	1.82
+United States	2017	2.458
+United States	2018	2.967
+United States	2019	2.584
+United States	2020	-2.081
+United States	2021	6.152
+United States	2022	2.524
+United States	2023	2.935
+United States	2024	2.793
+United States	2025	2.017
+United States	2026	2.102
+United States	2027	2.055
+United States	2028	2.093
+United States	2029	1.881
+United States	2030	1.753`,
 		currentYear = (new Date()).getFullYear(),
+		chartMargins = {'top':20, 'left':30, 'right':20, 'bottom':20},
 		intFormatter = function(num){
 			val = d3.format(",d")(num)
 			if(val == 'NaN'){
@@ -57,18 +245,19 @@ Constrained Generation	GPT-4	15	45`,
 function bodyLoaded() {
 	d3.select('.copyright_year').html(currentYear);
 	dataTextArea = d3.select('.data_text');
-	representationTypeSel = d3.select('#representation_type');
 	loadingDiv = d3.select('#loading_div');
 	inputDiv = d3.select('#input_div');
 	vizMainDiv = d3.select('#viz_main_div');
 	vizDiv = d3.select('#viz_div');
 	tooltipDiv = d3.select('#tooltip');
+	projectionSel = d3.select('#projections_start');
 	body = d3.select('body');
 	
 	dataTextArea.property('value', sampleData);
 	d3.select('.update_button').on('click', prepareChart);
-	representationTypeSel.on('change', updateRepresentation)
+	projectionSel.on('change', updateChart);
 	
+	d3.selectAll('input.projections_option').on('change', updateChart);
 	d3.selectAll('.with_tooltip').on('mouseenter', showTooltip).on('mousemove', moveTooltip).on('mouseleave', hideTooltip);
 	
 	window.onerror = function(message, source, lineno, colno, error) {  
@@ -92,37 +281,37 @@ function bodyLoaded() {
 	prepareChart();
 }
 
-
 function processData(dataArrStr){
 	dataArr = [];
 	let rows = dataArrStr.split('\n');
 	let obj;
-	let tasksSet = new Set();
-	let modelsSet = new Set()
+	let entitySet = new Set();
+	let allYears = [];
 	rows.forEach((r, ri) => {
 		rowArr = r.split('\t');
 		if (ri == 0){
-			taskColName = rowArr[0];
-			modelColName = rowArr[1];
-			baseColName = rowArr[2];
-			changedColName = rowArr[3];
+			entityColName = rowArr[0];
+			yearColName = rowArr[1];
+			valueColName = rowArr[2];
 		}else{
 			obj = {};
-			tasksSet.add(rowArr[0]);
-			modelsSet.add(rowArr[1]);
-			obj[taskColName] = rowArr[0];
-			obj[modelColName] = rowArr[1];
-			obj[baseColName] = +rowArr[2];
-			obj[changedColName] = +rowArr[3];
-			// obj['__change'] = obj[changedColName] - obj[baseColName];
+			entitySet.add(rowArr[0]);
+			allYears.push(+rowArr[1]);
+			obj[entityColName] = rowArr[0];
+			obj[yearColName] = +rowArr[1];
+			obj[valueColName] = +rowArr[2];
 			dataArr.push(obj);
 		}
 	});
-	tasksRollUp = d3.rollup(dataArr, v => d3.mean(v, d => d[changedColName] - d[baseColName]), d => d[taskColName]);
-	tasks = Array.from(tasksSet).sort((a,b) => d3.ascending(tasksRollUp.get(a), tasksRollUp.get(b)));
-	numModels = modelsSet.size;
-	models = Array.from(modelsSet);
-	colorScale = d3.scaleOrdinal().domain(models).range(d3.schemeCategory10);
+	yearRange = d3.extent(allYears);
+	numIntervals = yearRange[1] - yearRange[0];
+	entities = Array.from(entitySet).sort();
+	entityNumObj = {}
+	
+	entities.forEach((en, ei) => {entityNumObj[en] = ei});
+	colorScale = d3.scaleOrdinal().domain(entities).range(d3.schemeCategory10);
+	entityYearMap = d3.group(dataArr, d=>d[entityColName], d=> d[yearColName]);
+	entityDataMap = d3.group(dataArr, d=>d[entityColName]);
 }
 
 function prepareChart(){ 
@@ -132,129 +321,69 @@ function prepareChart(){
 
 function createChart(){
 	vizDiv.selectAll('*').remove();
-	let colorLegendDiv = vizDiv.append('div').attr('class', 'h10p w100p df');
-	let circleLegendDiv = vizDiv.append('div').attr('class', 'h5p w100p df mb20');
-	let innerVizDiv = vizDiv.append('div').attr('class', 'h65p w100p df');
-	let taskDiv = vizDiv.append('div').attr('class', 'h10p w100p df');
-	let averageDiv = vizDiv.append('div').attr('class', 'h5p w100p df');
 	
-	// prepare mini chart divs
-	innerVizDiv.append('div').attr('class', 'f1 scale_div');
-	tasks.forEach((t, ti) => {
-		innerVizDiv.append('div').attr('class', 'f1 mini_chart mr5').classed('bl1slg', ti > 0).datum(t);
-	});
+	// fix projection options
+	let i = yearRange[0];
+	projectionSel.selectAll('*').remove();
+	while( i <= yearRange[1]){
+		projectionSel.append('option').attr('value', i).html(i);
+		i = i + 1;
+	}
+	if ((currentYear > yearRange[0]) && (currentYear < yearRange[1])){
+		d3.select('input.apply_projections').property('checked', true);
+		projectionSel.property('value', currentYear);
+	}
 	
-	taskDiv.append('div').attr('class', 'f1 df aic jcsa fsxxs cg pt10 fwb').append('div').append('span').html(taskColName);
-	averageDiv.append('div').attr('class', 'f1 df aic jcsa fsxxs cg').append('div').append('span').html('Average Change');
-	
-	let rect = innerVizDiv.select('.mini_chart').node().getBoundingClientRect();
+	let colorLegendDiv = vizDiv.append('div').attr('class', 'h10p w100p df color_legend_div');
+	let iconLegendDiv = vizDiv.append('div').attr('class', 'h5p w100p df mb20 icon_legend_div');
+	let svgElem = vizDiv.append('div').attr('class', 'h80p w100p').append('svg').attr('class', 'h100p w100p');
 	
 	// prepare legends
-	colorLegendDiv.append('div').style('width', `${rect.width}px`); // empty div to match the scale div
-	circleLegendDiv.append('div').style('width', `${rect.width}px`); // empty div to match the scale div
+	colorLegendDiv.append('div').attr('class', 'w25'); // empty div to match the scale space
+	iconLegendDiv.append('div').attr('class', 'w25'); // empty div to match the scale space
 	let legendDiv = colorLegendDiv.append('div').attr('class', 'f1 df fww jcsa aic'); 
 	let div;
-	models.forEach((m) => {
+	entities.forEach((m) => {
 		div = legendDiv.append('div').attr('class', 'w20p p2 df aic');
-		div.append('div').attr('class', 'w10 h10 mr5').style('background-color', colorScale(m));
+		div.append('div').attr('class', `w10 h10 mr5 color_legend_box color_box_${entityNumObj[m]}`).datum(m).style('background-color', colorScale(m)).on('mouseover', entityMOver).on('mouseout', entityMOut);
 		div.append('div').attr('class', 'word-wrap fsxxs').append('span').html(m);
 	});
 	
-	div = circleLegendDiv.append('div').attr('class', 'f1 df jcsa aic fsxxs cg');
-	let leftLegendDiv = div.append('div').attr('class', '');
-	let rightLegendDiv = div.append('div').attr('class', '');
-	leftLegendDiv.append('span').attr('class', 'circles fsm mr5').html('&#9675;');
-	leftLegendDiv.append('span').attr('class', 'line_triangle fsm mr5 fwb').html('-');
-	leftLegendDiv.append('span').attr('class', 'circles').html(`Hollow circle`); 
-	leftLegendDiv.append('span').attr('class', 'line_triangle').html(`Horizontal line`);
-	leftLegendDiv.append('span').attr('class', 'mr5').html(` represents ${baseColName} performance, and`); 
-	rightLegendDiv.append('span').attr('class', 'circles fsm mr5').html('&#9679;');
-	rightLegendDiv.append('span').attr('class', 'line_triangle fsxxs mr5').html('&#9650 / &#9660');
-	rightLegendDiv.append('span').attr('class', 'circles').html(`Solid circle`); 
-	rightLegendDiv.append('span').attr('class', 'line_triangle').html(`Up or down triangle`); 
-	rightLegendDiv.append('span').html(` represents ${changedColName} performance`); 
+	div = iconLegendDiv.append('div').attr('class', 'f1 df jcsa aic fsxxs cg');
+	let leftLegendDiv = div.append('div').attr('class', 'df aic');
+	let rightLegendDiv = div.append('div').attr('class', 'df aic');
+	leftLegendDiv.append('span').attr('class', 'fsxxs mr5').html('—');
+	leftLegendDiv.append('span').attr('class', '').html(`Solid line represents actual values, and`);
+	rightLegendDiv.append('span').attr('class', 'fsxxs mr5').html('---');
+	rightLegendDiv.append('span').attr('class', '').html(`Dashed line represents projected values`); 
+	
+	
+	let rect = svgElem.node().getBoundingClientRect();	
 
 	// prepare charts
-	let modelWidth = rect.width/numModels;
-	let circleRadius = modelWidth*0.3;
-	let miniChartHeight = rect.height;
 	let allVals = [];
 	dataArr.forEach((d) => {
-		allVals.push(d[baseColName]);
-		allVals.push(d[changedColName]);
+		allVals.push(d[valueColName]);
 	})
-	let scaleY = d3.scaleLinear().domain(d3.extent(allVals)).nice().range([miniChartHeight - circleRadius, circleRadius]);
-	let miniChartDiv, svgElem, gElem;
-	let taskGroups = d3.group(dataArr, d => d[taskColName]);
-	let modelsArr;
+	let scaleY = d3.scaleLinear().domain(d3.extent(allVals)).nice().range([rect.height - chartMargins['bottom'], chartMargins['top']]);
+	let scaleX = d3.scaleLinear().domain(yearRange).range([chartMargins['left'], rect.width - chartMargins['right']]);
+	lineStrokeWidth = rect.height * 0.01;
+	if(lineStrokeWidth > 3){
+		lineStrokeWidth = 3;
+	}
+	if(lineStrokeWidth < 1.5){
+		lineStrokeWidth = 1.5;
+	}
 	
-	innerVizDiv.selectAll('.mini_chart').each(function(d, i){
-		miniChartDiv = d3.select(this);
-		svgElem = miniChartDiv.append('svg').attr('class', 'h100p w100p');
-		taskDiv.append('div').attr('class', 'f1 word-wrap fsxxs df aic jcsa tac fwb mr5 pt10').append('span').html(d);
-		modelsArr = taskGroups.get(d).slice();
-		averageDiv.append('div').attr('class', 'f1 word-wrap fsxxs df aic jcsa tac mr5 cg').append('span').html(float1Formatter(d3.mean(modelsArr, d => d[changedColName] - d[baseColName])));
-		modelsArr.sort((a,b) => d3.ascending(a[changedColName] - a[baseColName], b[changedColName] - b[baseColName]));
-		modelsArr.forEach((m, mi) => {
-			gElem = svgElem.append('g').attr("transform", `translate(${mi * modelWidth}, 0)`);
-			let x1 = modelWidth*0.75, // .4
-				x2 = modelWidth*0.75, // .8
-				y1 = scaleY(m[baseColName]),
-				y2 = scaleY(m[changedColName]),
-				textY = 0;
-			
-			if(m[changedColName] >= m[baseColName]){
-				textY = y2 - 15;
-			}else{
-				textY = y1 + 15;
-			}
-			
-			let trianglePoints = [];
-			if (m[changedColName] >= m[baseColName]){
-				// up triangle
-				trianglePoints.push([x2 - (circleRadius * 0.7),  y2 + (circleRadius * 0.7)])
-				trianglePoints.push([x2,  y2 - (circleRadius * 0.7)])
-				trianglePoints.push([x2 + (circleRadius * 0.7),  y2 + (circleRadius * 0.7)])
-			}else{
-				// down triangle
-				trianglePoints.push([x2 - (circleRadius * 0.7),  y2 - (circleRadius * 0.7)])
-				trianglePoints.push([x2,  y2 + (circleRadius * 0.7)])
-				trianglePoints.push([x2 + (circleRadius * 0.7),  y2 - (circleRadius * 0.7)])
-			}
-				
-			gElem.append('line')
-				.attr("x1", x1).attr("y1", y1)
-				.attr("x2", x2).attr("y2", y2)
-				.style("stroke", colorScale(m[modelColName])).style("stroke-width", circleRadius*0.50);
-				
-			gElem.append('circle').attr('class', 'circles').attr("cx", x1).attr("cy", y1).attr("r", circleRadius*0.75).style("stroke", colorScale(m[modelColName])).style("stroke-width", circleRadius*0.5).attr("fill", "white");
-			gElem.append('line').attr('class', 'line_triangle')
-								.attr("x1", x1 - circleRadius).attr("y1", y1)
-								.attr("x2", x1 + circleRadius).attr("y2", y1)
-								.style("stroke", colorScale(m[modelColName])).style("stroke-width", circleRadius*0.10);
-								
-			gElem.append('circle').attr('class', 'circles').attr("cx", x2).attr("cy", y2).attr("r", circleRadius).attr("fill", colorScale(m[modelColName]));
-			
-			gElem.append("path").attr('class', 'line_triangle')
-					.attr("d", `M ${trianglePoints[0][0]} ${trianglePoints[0][1]} L ${trianglePoints[1][0]} ${trianglePoints[1][1]} L ${trianglePoints[2][0]} ${trianglePoints[2][1]} Z`) // Coordinates for a triangle
-					.attr("fill", colorScale(m[modelColName]));
-	
-	
-			gElem.append('text').attr("x", ((x1 + x2)/2)).attr("y", textY)   //  - (circleRadius*1.5)
-				.attr("text-anchor", "middle").attr("dominant-baseline", "middle")
-				.attr("class", "fsxxs")
-				.attr("fill", "gray")
-				.text(float1Formatter(m[changedColName] - m[baseColName]));
-		});
-	});
-	
+	lineFn = d3.line().x((d) => scaleX(d[yearColName])).y((d) => scaleY(d[valueColName])).defined(d=>d[valueColName]);
+	appendLines(svgElem);	
+
 	// prepare axis
-	var yAxis = d3.axisLeft(scaleY);
-	svgElem = innerVizDiv.select('.scale_div').append('svg').attr('class', 'h100p w100p');
+	let yAxis = d3.axisLeft(scaleY);
     svgElem.append("g")
 			.attr("class", "y axis")
-            .attr("transform", `translate(${rect.width}, 0)`)
-            .call(yAxis)
+            .attr("transform", `translate(${chartMargins['left']}, 0)`)
+            .call(yAxis);
 	
 	// Select and style the axis line and ticks
 	svgElem.selectAll(".y.axis line, .y.axis path")
@@ -264,27 +393,94 @@ function createChart(){
 	svgElem.selectAll(".y.axis text")
 	  .style("fill", "gray");
 	  
+	let xAxis = d3.axisBottom(scaleX).tickFormat(d3.format("d"));
+    svgElem.append("g")
+			.attr("class", "x axis")
+            .attr("transform", `translate(0, ${rect.height - chartMargins['bottom']})`)
+            .call(xAxis);
+	
+	// Select and style the axis line and ticks
+	svgElem.selectAll(".x.axis line, .x.axis path")
+	  .style("stroke", "gray");
+
+	// Select and style the axis text labels
+	svgElem.selectAll(".x.axis text")
+	  .style("fill", "gray");
+	  
 	svgElem.append("text")
     .attr("class", "y label fsxxs fwb")
     .attr("text-anchor", "middle")
-    .attr("y", rect.width/2)
+    .attr("y", 5)
 	.attr("x", -rect.height/2)
     .attr("dy", ".75em")
     .attr("transform", "rotate(-90)")
 	.style("fill", "gray")
-    .text("Performance (%)");
-	
-	updateRepresentation();
+    .text(valueColName);
   
 	loadingDiv.classed('dn', true);
 }
 
-function updateRepresentation(){
-	vizDiv.selectAll('.circles').classed('dn', true);
-	vizDiv.selectAll('.line_triangle').classed('dn', true);
+function appendLines(elem){
+	elem.selectAll('.entity_line').remove();
+	entities.forEach((en) => {
+		if (! entityYearMap.has(en))return;
+		lineData = [];
+		for (i = yearRange[0]; i<= yearRange[1]; i++){
+			if (entityYearMap.get(en).has(i)){
+				lineData.push(entityYearMap.get(en).get(i)[0]);
+			}else{
+				let obj = {};
+				obj[yearColName] = i;
+				obj[valueColName] = null;
+				lineData.push(obj);
+			}
+		}
+		if (d3.select('input.apply_projections').property('checked')){
+			let cutoff = +projectionSel.property('value') - 1;
+			solidArr = [];
+			dashedArr = [];
+			lineData.forEach((ld) => {
+				if(ld[yearColName]<=cutoff){
+					solidArr.push(ld);
+				}
+				if(ld[yearColName]>=cutoff){
+					dashedArr.push(ld);
+				}
+			});
+			elem.append("path").attr('class', `entity_line line_${entityNumObj[en]}`).datum(en).attr("d", lineFn(solidArr)).style("stroke", colorScale(en)).style("stroke-width", lineStrokeWidth).attr("fill", "none").on('mouseover', entityMOver).on('mouseout', entityMOut);
+			elem.append("path").attr('class', `entity_line line_${entityNumObj[en]}`).datum(en).attr("d", lineFn(dashedArr)).style("stroke", colorScale(en)).style("stroke-width", lineStrokeWidth).attr("fill", "none").style("stroke-dasharray", "4,2").on('mouseover', entityMOver).on('mouseout', entityMOut);
+		}else{
+			elem.append("path").attr('class', `entity_line line_${entityNumObj[en]}`).datum(en).attr("d", lineFn(lineData)).style("stroke", colorScale(en)).style("stroke-width", lineStrokeWidth).attr("fill", "none").on('mouseover', entityMOver).on('mouseout', entityMOut);
+		}
+	});
 	
-	vizDiv.selectAll(`.${representationTypeSel.property('value')}`).classed('dn', false);
 	
+}
+
+function entityMOver(evt, d){
+	vizDiv.selectAll('.entity_line').style("stroke", "lightgray");
+	vizDiv.selectAll('.color_legend_box').style("background-color", "lightgray");
+	vizDiv.selectAll(`.color_box_${entityNumObj[d]}`).style("background-color", colorScale(d));
+	vizDiv.selectAll(`.line_${entityNumObj[d]}`).style("stroke", colorScale(d)).raise();
+}
+
+function entityMOut(evt, d){
+	vizDiv.selectAll('.entity_line').style("stroke", (dIn) => colorScale(dIn));
+	vizDiv.selectAll('.color_legend_box').style("background-color", (dIn) => colorScale(dIn));
+}
+	
+function updateChart(){
+	let svgElem = vizDiv.select('svg');
+	appendLines(svgElem);
+	showHideLegend();
+}
+
+function showHideLegend(){
+	if (d3.select('input.apply_projections').property('checked')){
+		vizDiv.select('.icon_legend_div').classed('dn', false);
+	}else{
+		vizDiv.select('.icon_legend_div').classed('dn', true); 
+	}
 }
 
 function positionElement(elem, evX, evY, preferLeft=false){
